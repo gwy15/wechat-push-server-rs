@@ -20,6 +20,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache cargo registry
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-wechat-push-cargo-registry
+    - name: Cache cargo index
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-wechat-push-cargo-index
+
     - name: Install diesel cli
       run: cargo install diesel_cli --no-default-features --features postgres
     - name: Setup database
