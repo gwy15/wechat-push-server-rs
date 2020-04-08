@@ -5,20 +5,23 @@ use std::sync::Mutex;
 
 pub async fn send_template_message(
     token_manager: &Mutex<TokenManager>,
-    message: NewMessage,
+    message: &NewMessage,
 ) -> Result<Value, WechatError> {
     const URL: &'static str = "https://api.weixin.qq.com/cgi-bin/message/template/send";
-    let mut data = json!({
+    let data = json!({
         "touser": message.receiver,
-        "template_id": message.template_id.expect("Template ID should not be none"),
+        "template_id": message.template_id.as_ref().expect("Template ID should not be none"),
+        "url": message.detail_url,
         "data": {
-            "title": message.title,
-            "body": message.body
-        }
+            "title": {
+                "value": message.title
+            },
+            "body": {
+                "value": message.body.as_ref().unwrap_or(&"".to_owned())
+            }
+        },
     });
-    if let Some(url) = message.url {
-        data["data"]["url"] = json!(url);
-    }
+    log::trace!("Sending data to wechat: {}", data);
 
     let mut request = Request::post(URL).data(&data);
     {

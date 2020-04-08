@@ -9,6 +9,7 @@ pub struct WechatConfig {
     pub app_secret: String,
     pub token: String,
     pub default_template_id: String,
+    pub detail_url: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -47,12 +48,7 @@ impl Config {
 
     /// Check config validation, trims url, etc.
     fn check(&mut self) {
-        if let Some('/') = self.root_url.chars().rev().next() {
-            self.root_url = self
-                .root_url
-                .chars()
-                .take(self.root_url.len() - 1)
-                .collect();
-        }
+        self.root_url = self.root_url.trim_end_matches("/").to_owned();
+        self.wechat.detail_url = self.wechat.detail_url.trim_end_matches("/").to_owned();
     }
 }

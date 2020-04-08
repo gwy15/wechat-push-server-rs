@@ -2,7 +2,6 @@ use crate::errors::Result;
 use crate::shared_state::AppState;
 use crate::wechat::template_message::{apis, NewMessage};
 use actix_web::{web, HttpRequest, HttpResponse};
-use serde_json::json;
 
 async fn message_detail(params: web::Path<(String,)>) -> Result<HttpResponse> {
     let token = &params.0;
@@ -18,23 +17,28 @@ async fn post_message(
 ) -> Result<HttpResponse> {
     // extract from web::Form boxing
     let mut message: NewMessage = message.into_inner();
-    // first merge with default template_id
+    // modify the message
+    message.id = Some(uuid::Uuid::new_v4());
+    message.detail_url = Some(format!(
+        "{}/{}",
+        state.as_ref().config.wechat.detail_url,
+        message.id.as_ref().unwrap()
+    ));
     message.template_id = Some(
         message
             .template_id
             .unwrap_or_else(|| state.as_ref().config.wechat.default_template_id.clone()),
     );
-    log::debug!("Sending message {:?}", message);
+    log::trace!("Sending message {:?}", message);
     // post message with wechat module api
-    let response = apis::send_template_message(&state.as_ref().token_manager, message.clone()).await?;
+    let response = apis::send_template_message(&state.as_ref().token_manager, &message).await?;
     log::info!("A template message was sent successfully");
     // if success, write to database
     use crate::models::Message;
     use std::time::SystemTime;
-    use uuid::Uuid;
     // init msg
     let msg = Message {
-        id: Uuid::new_v4(),
+        id: message.id.unwrap(),
         app_id: state.as_ref().config.wechat.app_id.clone(),
         template_id: message.template_id.unwrap(),
         receiver_id: message.receiver,

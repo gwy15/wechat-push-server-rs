@@ -72,7 +72,7 @@ impl TokenManager {
 
         TokenManager::parse_response_body(data).map(|token| {
             self.token = Some(token.clone());
-            log::info!("New wechat token applied.");
+            log::info!("A new wechat token was successfully issued.");
             token
         })
     }
