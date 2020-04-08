@@ -1,7 +1,9 @@
+use actix_threadpool::BlockingError;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
 use failure::Context;
+use r2d2::Error as R2D2Error;
 use redis::RedisError;
 
 use crate::wechat::errors::WechatError;
@@ -11,6 +13,13 @@ pub enum InternalError {
     // database error
     #[fail(display = "Error executing DB operation")]
     Database(#[fail(cause)] DieselError),
+
+    #[fail(display = "Error executing R2D2 operation")]
+    R2D2(#[fail(cause)] R2D2Error),
+
+    // blocking error
+    #[fail(display = "Block cancelled")]
+    CancelledBlock,
 
     // redis error
     #[fail(display = "Error executing redis operation.")]
@@ -24,7 +33,7 @@ pub enum InternalError {
 /// Error type for all Result for app handlers.
 ///
 /// There are two kinds of errors, i.e. non-user-facing errors (internal errors) and user-facing errors.
-/// 
+///
 /// Non-user-facing errors like DieselError, RedisError and WechatError can be converted into
 /// Error::InternalError directly using the ? operator, with a cause as the error it self.
 /// For other internal errors, use Result<>.context(s) to convert to Error::OtherInternal.
@@ -80,6 +89,11 @@ impl From<DieselError> for Error {
         Error::InternalError(InternalError::Database(e))
     }
 }
+impl From<R2D2Error> for Error {
+    fn from(e: R2D2Error) -> Self {
+        Error::InternalError(InternalError::R2D2(e))
+    }
+}
 impl From<RedisError> for Error {
     fn from(e: RedisError) -> Self {
         Error::InternalError(InternalError::Redis(e))
@@ -90,6 +104,16 @@ impl From<WechatError> for Error {
         Error::InternalError(InternalError::Wechat(e))
     }
 }
+// block
+impl From<BlockingError<Error>> for Error {
+    fn from(e: BlockingError<Error>) -> Self {
+        match e {
+            BlockingError::Error(e) => e,
+            BlockingError::Canceled => Error::InternalError(InternalError::CancelledBlock),
+        }
+    }
+}
+
 // from context
 impl<T> From<Context<T>> for Error
 where

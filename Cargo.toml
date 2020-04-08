@@ -18,6 +18,7 @@ env_logger = "0.7.1"
 chrono = "0.4.11"
 # error handling
 failure = "0.1.7"
+actix-threadpool = "0.3.1"
 # configuration
 config = "0.10.1"
 serde = "1.0.106"
