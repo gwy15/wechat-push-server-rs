@@ -42,7 +42,8 @@ jobs:
         - 6379:6379
 
     # setup environments
-    - uses: actions/setup-python@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.7'
         architecture: 'x64'
