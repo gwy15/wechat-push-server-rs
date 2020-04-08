@@ -1,0 +1,8 @@
+# The default config toml.
+root_url = "/"
+redis_url = "redis://127.0.0.1/"
+
+[wechat]
+app_id = "Wechat MP App ID"
+app_secret= "Wechat MP App secret"
+token = "token"
