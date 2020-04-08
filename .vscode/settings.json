@@ -12,6 +12,7 @@
         "hasher",
         "msgid",
         "openid",
+        "pytest",
         "qrcode",
         "reqwest",
         "threadpool",
