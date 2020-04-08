@@ -42,6 +42,7 @@ jobs:
         - 6379:6379
     
     steps:
+    - uses: actions/checkout@v2
     # setup environments
     - name: Setup Python
       uses: actions/setup-python@v1
