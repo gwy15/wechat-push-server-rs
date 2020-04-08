@@ -13,6 +13,7 @@
         "openid",
         "qrcode",
         "reqwest",
+        "touser",
         "wechat"
     ]
 }

@@ -10,7 +10,5 @@ table! {
         created_time -> Int8,
         ip -> Text,
         UA -> Text,
-        errcode -> Nullable<Int4>,
-        msgid -> Int8,
     }
 }

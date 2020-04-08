@@ -17,15 +17,4 @@ pub struct Message {
     pub created_time: i64,
     pub ip: String,
     pub UA: String,
-    pub errcode: Option<i32>,
-    pub msgid: i64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NewMessage {
-    pub template_id: Option<String>,
-    pub receiver: String,
-    pub title: String,
-    pub body: Option<String>,
-    pub url: Option<String>,
 }

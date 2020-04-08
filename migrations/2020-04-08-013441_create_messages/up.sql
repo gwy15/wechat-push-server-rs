@@ -11,8 +11,5 @@ CREATE TABLE messages (
     created_time BIGINT NOT NULL,
     -- sender info
     ip Text NOT NULL,
-    "UA" Text NOT NULL,
-    -- wechat response info
-    errcode INTEGER,
-    msgid BIGINT NOT NULL
+    "UA" Text NOT NULL
 );

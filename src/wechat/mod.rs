@@ -12,3 +12,4 @@ pub use token::TokenManager;
 
 // generate qrcode
 pub mod qrcode;
+pub mod template_message;

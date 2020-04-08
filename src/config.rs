@@ -8,6 +8,7 @@ pub struct WechatConfig {
     pub app_id: String,
     pub app_secret: String,
     pub token: String,
+    pub default_template_id: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
