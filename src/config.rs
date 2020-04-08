@@ -1,6 +1,7 @@
 use config::{Config as ConfigMod, ConfigError, File};
 use log;
 use serde_derive::Deserialize;
+use std::env;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct WechatConfig {
@@ -21,12 +22,19 @@ impl Config {
     pub fn new(testing: bool) -> Result<Self, ConfigError> {
         let mut s = ConfigMod::new();
         // default
-        s.merge(File::with_name("config.toml"))?;
-        // local
-        s.merge(File::with_name("config.local").required(false))?;
+        s.merge(File::with_name("config/config.default"))?;
+        s.merge(File::with_name("config/config.local").required(false))?;
         // testing
         if testing {
-            s.merge(File::with_name("config.testing"))?;
+            s.merge(File::with_name("config/config.testing"))?;
+            s.merge(File::with_name("config/config.testing.local").required(false))?;
+        }
+        // Am I in CI?
+        let workflow_name = env::var("GITHUB_WORKFLOW").unwrap_or("".into());
+        if workflow_name != "" {
+            log::info!("CI environment detected: {}", workflow_name);
+            s.merge(File::with_name("config/config.ci"))?;
+            s.merge(File::with_name("config/config.ci.local").required(false))?;
         }
 
         s.try_into().and_then(|mut c: Self| {

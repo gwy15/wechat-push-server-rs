@@ -9,6 +9,6 @@ services:
         image: postgres:10-alpine
         container_name: wechat-push-postgres
         environment: 
-            - POSTGRES_PASSWORD=RANDOM_PASSWORD
+            - POSTGRES_PASSWORD=SOME_STRONG_PASSWORD
         ports: 
             - "5432:5432"
