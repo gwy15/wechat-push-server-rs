@@ -1,8 +1,8 @@
 use crate::errors::Result;
 use crate::models;
-use diesel::RunQueryDsl;
+use uuid::Uuid;
 
-use diesel::prelude::PgConnection;
+use diesel::prelude::*;
 
 pub fn insert_message(msg: models::Message, con: &PgConnection) -> Result<()> {
     use crate::schema::messages::dsl::*;
@@ -10,7 +10,11 @@ pub fn insert_message(msg: models::Message, con: &PgConnection) -> Result<()> {
     Ok(())
 }
 
-fn find_message_by_uuid(uuid: String) -> Result<Option<models::Message>> {
-    // TODO:
-    Ok(None)
+pub fn find_message_by_uuid(uuid: Uuid, con: &PgConnection) -> Result<Option<models::Message>> {
+    use crate::schema::messages::dsl::*;
+    let mut msgs = messages
+        .filter(id.eq(uuid))
+        .limit(1)
+        .load::<models::Message>(&*con)?;
+    Ok(msgs.pop())
 }
