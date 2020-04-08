@@ -3,3 +3,4 @@ target
 # .env is only for diesel-cli
 .env
 
+log

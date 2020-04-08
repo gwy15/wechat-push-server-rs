@@ -4,6 +4,7 @@
         "Queryable",
         "Uuid",
         "Varchar",
+        "appenders",
         "appid",
         "echostr",
         "errcode",
