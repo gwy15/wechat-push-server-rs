@@ -23,7 +23,7 @@ jobs:
     - name: Install diesel cli
       run: cargo install diesel_cli --no-default-features --features postgres
     - name: Setup database
-      run: diesel --database-url=postgres://postgres:github_action_pswd@127.0.0.1:5432/db
+      run: diesel --database-url=postgres://postgres:github_action_pswd@127.0.0.1:5432/db setup
     - name: Build with cargo
       run: cargo build --verbose
     - name: Run tests
