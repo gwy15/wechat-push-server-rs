@@ -1,0 +1,7 @@
+.vscode
+.github
+build*
+log
+migrations
+target
+
