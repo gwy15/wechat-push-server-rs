@@ -44,6 +44,9 @@ pub enum Error {
 
     #[fail(display = "Bad request: {}", _0)]
     BadRequest(String),
+
+    #[fail(display = "Not found: {}", _0)]
+    NotFound(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -54,6 +57,7 @@ impl ResponseError for Error {
             Self::InternalError(_) | Self::OtherInternal(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             Self::BadRequest(_) => StatusCode::BAD_REQUEST,
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
         }
     }
     fn error_response(&self) -> HttpResponse {
@@ -62,6 +66,7 @@ impl ResponseError for Error {
             Self::InternalError(_) | Self::OtherInternal(_) => HttpResponse::InternalServerError(),
             Self::Unauthorized(_) => HttpResponse::Unauthorized(),
             Self::BadRequest(_) => HttpResponse::BadRequest(),
+            Self::NotFound(_) => HttpResponse::NotFound(),
         };
         response_builder.json::<ErrorResponse>(self.into())
     }

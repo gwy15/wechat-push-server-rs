@@ -12,12 +12,12 @@ impl From<&Error> for ErrorResponse {
         use Error::*;
         let errmsg = match e {
             InternalError(_) | OtherInternal(_) => "Internal Error".to_owned(),
-            Unauthorized(s) | BadRequest(s) => s.clone(),
+            Unauthorized(s) | BadRequest(s) | NotFound(s) => s.clone(),
         };
         let detail = match e {
             InternalError(e) => Some(format!("{}", e)),
             OtherInternal(e) => Some(format!("{}", e)),
-            Unauthorized(_) | BadRequest(_) => None,
+            Unauthorized(_) | BadRequest(_) | NotFound(_) => None,
         };
         Self { errmsg, detail }
     }

@@ -10,11 +10,11 @@ use actix_web::web;
 mod config;
 mod errors;
 mod logging;
+mod models;
 mod routes;
 mod schema;
 mod shared_state;
 mod wechat;
-mod models;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
                     .configure(routes::message::configure)
                     .configure(routes::callback::configure),
             )
+            .default_service(web::route().to(routes::default_handler))
     })
     .bind("127.0.0.1:8088")?;
 
