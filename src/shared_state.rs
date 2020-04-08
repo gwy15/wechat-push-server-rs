@@ -13,7 +13,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(config: Config) -> Self {
+    pub fn from_config(config: Config) -> Self {
         let token_manager = TokenManager::new(
             config.wechat.app_id.clone(),
             config.wechat.app_secret.clone(),

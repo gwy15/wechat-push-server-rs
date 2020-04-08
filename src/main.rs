@@ -20,7 +20,7 @@ async fn main() -> std::io::Result<()> {
     // init wechat token manager here
     let config = config::Config::new(false).unwrap();
     let root_url = config.root_url.clone();
-    let state = shared_state::AppState::new(config);
+    let state = shared_state::AppState::from_config(config);
     // pre-wrap with Arc to avoid clone state
     let app_data = web::Data::new(state);
 
