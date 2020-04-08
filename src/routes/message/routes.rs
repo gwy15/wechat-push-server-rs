@@ -3,34 +3,62 @@ use crate::models::Message;
 use crate::shared_state::AppState;
 use crate::wechat::template_message::{apis, NewMessage};
 use actix_web::{web, HttpRequest, HttpResponse};
-use serde_json::json;
+use redis::AsyncCommands;
+use serde_json::{json, Value};
 use uuid::Uuid;
+
+fn simplify_message(message: Message) -> Value {
+    json!({
+        "title": message.title,
+        "body": message.body,
+        "url": message.url,
+        "created_time": message.created_time
+    })
+}
 
 async fn message_detail(
     params: web::Path<(Uuid,)>,
     state: web::Data<AppState>,
 ) -> Result<HttpResponse> {
     let uuid = params.0;
-    // TODO: load cache from redis
-
-
+    let redis_key = format!("wxpush:msg:{}", uuid);
+    // load cache from redis
+    let mut redis = state.as_ref().redis_connection().await?;
+    let cache_result: Option<String> = redis.get(&redis_key).await?;
+    match cache_result {
+        Some(s) => match s.parse::<Value>() {
+            Ok(v) => {
+                log::debug!("Hit redis cache");
+                // todo
+                return Ok(match v.is_null() {
+                    true => HttpResponse::NotFound().json(json!({})),
+                    false => HttpResponse::Ok().json(v),
+                });
+            }
+            // parse error, wrong value, should be seeing this
+            Err(e) => log::warn!("Failed to parse redis result '{}' ({})", s, e),
+        },
+        // cache miss
+        None => {}
+    }
+    // fallback to SQL db query
     let message = web::block(move || {
         let con = state.as_ref().db_pool.get()?;
         super::actions::find_message_by_uuid(uuid, &con)
     })
     .await?;
-    // cache result to redis
-
-    if let None = message {
-        return Ok(HttpResponse::NotFound().json(json!({})));
-    }
-    let message = message.unwrap();
-    Ok(HttpResponse::Ok().json(json!({
-        "title": message.title,
-        "body": message.body,
-        "url": message.url,
-        "created_time": message.created_time
-    })))
+    // cache result to redis and return
+    Ok(match message {
+        None => {
+            redis.set_ex(redis_key, "null", 10).await?;
+            HttpResponse::NotFound().json(json!({}))
+        }
+        Some(msg) => {
+            let msg = simplify_message(msg);
+            redis.set_ex(&redis_key, msg.to_string(), 5 * 60).await?;
+            HttpResponse::Ok().json(msg)
+        }
+    })
 }
 
 async fn post_message(
