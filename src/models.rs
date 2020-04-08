@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::schema::messages;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Queryable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[allow(non_snake_case)]
 pub struct Message {
     pub id: Uuid,

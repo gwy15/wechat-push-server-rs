@@ -35,6 +35,6 @@ xml-rs = "0.8.2"
 # redis
 redis = "0.15.1"
 # SQL
-diesel = { version = "1.4.4", features = ["postgres", "r2d2"] }
 r2d2 = "0.8.8"
-uuid = { version = "0.8.1", features = ["serde"] }
+diesel = { version = "1.4.4", features = ["postgres", "r2d2", "uuidv07"] }
+uuid = { version = "0.7.4", features = ["serde", "v4"] }
