@@ -14,8 +14,8 @@ mod models;
 mod routes;
 mod schema;
 mod shared_state;
-mod wechat;
 mod utils;
+mod wechat;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

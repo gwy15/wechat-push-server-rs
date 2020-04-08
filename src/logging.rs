@@ -18,5 +18,5 @@ pub fn init_logger() {
             )
         })
         .init();
-    info!("env logger inited");
+    info!("env logger initialized");
 }
