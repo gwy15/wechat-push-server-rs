@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate failure;
 
+#[macro_use]
+extern crate diesel;
+
 use actix_web::middleware::Logger;
 use actix_web::web;
 
@@ -8,8 +11,10 @@ mod config;
 mod errors;
 mod logging;
 mod routes;
+mod schema;
 mod shared_state;
 mod wechat;
+mod models;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

@@ -1,16 +1,16 @@
 table! {
     messages (id) {
         id -> Uuid,
-        app_id -> Nullable<Varchar>,
-        template_id -> Nullable<Varchar>,
-        receiver_id -> Nullable<Varchar>,
-        title -> Nullable<Varchar>,
-        body -> Nullable<Varchar>,
-        url -> Nullable<Varchar>,
-        created_time -> Nullable<Int8>,
-        ip -> Nullable<Varchar>,
-        UA -> Nullable<Varchar>,
+        app_id -> Text,
+        template_id -> Text,
+        receiver_id -> Text,
+        title -> Text,
+        body -> Text,
+        url -> Nullable<Text>,
+        created_time -> Int8,
+        ip -> Text,
+        UA -> Text,
         errcode -> Nullable<Int4>,
-        msgid -> Nullable<Int4>,
+        msgid -> Int8,
     }
 }

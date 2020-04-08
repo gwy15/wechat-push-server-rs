@@ -1,10 +1,15 @@
 {
     "cSpell.words": [
+        "Insertable",
+        "Queryable",
+        "Uuid",
+        "Varchar",
         "appid",
         "echostr",
         "errcode",
         "errmsg",
         "hasher",
+        "msgid",
         "openid",
         "qrcode",
         "reqwest",

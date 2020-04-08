@@ -13,6 +13,7 @@ pub struct WechatConfig {
 pub struct Config {
     pub root_url: String,
     pub redis_url: String,
+    pub postgres_url: String,
     pub wechat: WechatConfig,
 }
 

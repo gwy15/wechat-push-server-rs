@@ -1,6 +1,7 @@
 # The default config toml.
 root_url = "/"
 redis_url = "redis://127.0.0.1/"
+postgres_url = "postgres://postgres:password@127.0.0.1/db"
 
 [wechat]
 app_id = "Wechat MP App ID"
