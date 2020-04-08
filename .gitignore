@@ -2,3 +2,7 @@ target
 
 config.local.toml
 config.testing.toml
+
+# .env is only for diesel-cli
+.env
+

@@ -94,33 +94,3 @@ async fn on_event(
     }
     Ok(HttpResponse::Ok().body(""))
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::{app, get};
-    #[actix_rt::test]
-    async fn test_echo_get_callback() {
-        let mut app = app!("/callback" => web::get().to(echo_get_callback));
-        // no param
-        let r = get!(app, "/callback");
-        assert!(r.status().is_client_error());
-        // bad sign
-        let bad_url = "/callback?signature=6d&timestamp=timestamp&nonce=nonce&echostr=123";
-        let r = get!(app, bad_url);
-        assert!(r.status().is_client_error());
-        // no echo
-        let signature = "6db4861c77e0633e0105672fcd41c9fc2766e26e";
-        let signed_url = format!(
-            "/callback?signature={}&timestamp=timestamp&nonce=nonce",
-            signature
-        );
-        let r = get!(app, &signed_url);
-        assert!(r.status().is_client_error());
-        // ok, skip for now since I'm too lazy to calculate the sign
-        // let ok_url = signed_url + "&echostr=123";
-        // let r = get!(app, &ok_url);
-        // let body = actix_web::test::read_body(r).await;
-        // assert_eq!(body, "123");
-    }
-}

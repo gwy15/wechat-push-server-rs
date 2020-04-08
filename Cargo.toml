@@ -19,7 +19,7 @@ chrono = "0.4.11"
 # error handling
 failure = "0.1.7"
 # configuration
-toml = "0.5.6"
+config = "0.10.1"
 serde = "1.0.106"
 serde_derive = "1.0.106"
 

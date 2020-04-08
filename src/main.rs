@@ -9,7 +9,6 @@ mod errors;
 mod logging;
 mod routes;
 mod shared_state;
-mod tests_setup;
 mod wechat;
 
 #[actix_rt::main]
@@ -19,7 +18,7 @@ async fn main() -> std::io::Result<()> {
     logging::init_logger();
 
     // init wechat token manager here
-    let config = config::Config::load(false).unwrap();
+    let config = config::Config::new(false).unwrap();
     let root_url = config.root_url.clone();
     let state = shared_state::AppState::new(config);
     // pre-wrap with Arc to avoid clone state
