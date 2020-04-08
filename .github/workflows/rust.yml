@@ -25,17 +25,22 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.cargo/registry
-        key: ${{ runner.os }}-wechat-push-cargo-registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
     - name: Cache cargo binaries
       uses: actions/cache@v1
       with:
         path: ~/.cargo/bin
-        key: ${{ runner.os }}-wechat-push-cargo-binary
+        key: ${{ runner.os }}-cargo-binary-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo build
+      uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Install diesel cli
       run: cargo install diesel_cli --no-default-features --features postgres
     - name: Setup database
-      run: diesel --database-url=postgres://postgres:github_action_pswd@127.0.0.1:5432/db setup
+      run: diesel --database-url=postgres://postgres:github_action_pswd@127.0.0.1:5432/wechat_push setup
     - name: Build with cargo
       run: cargo build --verbose
     - name: Run tests

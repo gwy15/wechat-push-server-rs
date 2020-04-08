@@ -1,1 +1,1 @@
-postgres_url = "postgres://postgres:SOME_STRONG_PASSWORD@127.0.0.1/db"
+postgres_url = "postgres://postgres:SOME_STRONG_PASSWORD@127.0.0.1/wechat_push"

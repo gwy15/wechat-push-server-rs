@@ -1,4 +1,7 @@
+# buildouts
 target
+build
+build.zip
 
 # .env is only for diesel-cli
 .env
