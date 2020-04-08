@@ -49,10 +49,12 @@ impl Request {
         use super::errors::GetKey;
         let data = self.req.send().await?.json::<Value>().await?;
         if let Some(_) = data.get("errcode") {
-            log::warn!("wechat error: {}", data);
             let errcode = data.get_key("errcode")?;
             let errmsg = data.get_key("errmsg")?;
-            return Err(WechatError::Wechat { errcode, errmsg });
+            if errcode != 0 {
+                log::warn!("wechat error: {}", data);
+                return Err(WechatError::Wechat { errcode, errmsg });
+            }
         }
         Ok(data)
     }

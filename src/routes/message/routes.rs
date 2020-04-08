@@ -24,8 +24,9 @@ async fn post_message(
             .template_id
             .unwrap_or_else(|| state.as_ref().config.wechat.default_template_id.clone()),
     );
+    log::debug!("Sending message {:?}", message);
     // post message with wechat module api
-    apis::send_template_message(&state.as_ref().token_manager, message.clone()).await?;
+    let response = apis::send_template_message(&state.as_ref().token_manager, message.clone()).await?;
     log::info!("A template message was sent successfully");
     // if success, write to database
     use crate::models::Message;
@@ -57,13 +58,16 @@ async fn post_message(
             .unwrap_or_default(),
     };
     // insert into database
+    // log::debug!("Inserting {:?} into database", msg);
     web::block(move || {
         let con = state.as_ref().db_pool.get()?;
         super::actions::insert_message(msg, &con)
     })
     .await?;
 
-    Ok(HttpResponse::Ok().json(json!({})))
+    // TODO: save to redis
+
+    Ok(HttpResponse::Ok().json(response))
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
