@@ -1,4 +1,5 @@
-use actix_web::ResponseError;
+use actix_web::http::StatusCode;
+use actix_web::{HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
 use failure::Context;
 use redis::RedisError;
@@ -21,14 +22,14 @@ pub enum InternalError {
 }
 
 /// Error type for all Result for app handlers.
-/// 
+///
 /// For non-user-facing error (internal errors), DieselError, RedisError and WechatError
-/// can be converted into Error::InternalError directly, with a cause to trace back. 
+/// can be converted into Error::InternalError directly, with a cause to trace back.
 /// For other internal errors, use Result<>.context(s) to convert to Error::OtherInternal.
-/// 
+///
 /// For user-facing errors, Use Error::Unauthorized(String) and etc. to generate a json response
 /// like { errmsg: string }.
-/// 
+///
 #[derive(Debug, Fail)]
 pub enum Error {
     #[fail(display = "Internal error happened")]
@@ -47,7 +48,24 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-impl ResponseError for Error {}
+impl ResponseError for Error {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            Self::InternalError(_) | Self::OtherInternal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
+            Self::BadRequest(_) => StatusCode::BAD_REQUEST,
+        }
+    }
+    fn error_response(&self) -> HttpResponse {
+        use super::response::ErrorResponse;
+        let mut response_builder = match self {
+            Self::InternalError(_) | Self::OtherInternal(_) => HttpResponse::InternalServerError(),
+            Self::Unauthorized(_) => HttpResponse::Unauthorized(),
+            Self::BadRequest(_) => HttpResponse::BadRequest(),
+        };
+        response_builder.json::<ErrorResponse>(self.into())
+    }
+}
 
 // from internal errors
 impl From<DieselError> for Error {
