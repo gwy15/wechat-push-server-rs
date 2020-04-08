@@ -23,8 +23,10 @@ pub enum InternalError {
 
 /// Error type for all Result for app handlers.
 ///
-/// For non-user-facing error (internal errors), DieselError, RedisError and WechatError
-/// can be converted into Error::InternalError directly, with a cause to trace back.
+/// There are two kinds of errors, i.e. non-user-facing errors (internal errors) and user-facing errors.
+/// 
+/// Non-user-facing errors like DieselError, RedisError and WechatError can be converted into
+/// Error::InternalError directly using the ? operator, with a cause as the error it self.
 /// For other internal errors, use Result<>.context(s) to convert to Error::OtherInternal.
 ///
 /// For user-facing errors, Use Error::Unauthorized(String) and etc. to generate a json response
