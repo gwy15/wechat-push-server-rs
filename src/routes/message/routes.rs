@@ -5,7 +5,11 @@ use crate::wechat::template_message::{apis, NewMessage};
 use actix_web::{web, HttpRequest, HttpResponse};
 use redis::AsyncCommands;
 use serde_json::{json, Value};
+use std::time::SystemTime;
 use uuid::Uuid;
+
+const HIT_CACHE_SECONDS: usize = 5 * 60;
+const MISS_CACHE_SECONDS: usize = 10;
 
 fn simplify_message(message: Message) -> Value {
     json!({
@@ -16,20 +20,23 @@ fn simplify_message(message: Message) -> Value {
     })
 }
 
+fn redis_key(uuid: &Uuid) -> String {
+    format!("wxpush:msg:{}", uuid)
+}
+
 async fn message_detail(
     params: web::Path<(Uuid,)>,
     state: web::Data<AppState>,
 ) -> Result<HttpResponse> {
     let uuid = params.0;
-    let redis_key = format!("wxpush:msg:{}", uuid);
-    // load cache from redis
+    let redis_key = redis_key(&uuid);
+    // try load cache from redis
     let mut redis = state.as_ref().redis_connection().await?;
     let cache_result: Option<String> = redis.get(&redis_key).await?;
     match cache_result {
         Some(s) => match s.parse::<Value>() {
             Ok(v) => {
                 log::debug!("Hit redis cache");
-                // todo
                 return Ok(match v.is_null() {
                     true => HttpResponse::NotFound().json(json!({})),
                     false => HttpResponse::Ok().json(v),
@@ -41,7 +48,7 @@ async fn message_detail(
         // cache miss
         None => {}
     }
-    // fallback to SQL db query
+    // if miss, fallback to SQL db query
     let message = web::block(move || {
         let con = state.as_ref().db_pool.get()?;
         super::actions::find_message_by_uuid(uuid, &con)
@@ -50,12 +57,14 @@ async fn message_detail(
     // cache result to redis and return
     Ok(match message {
         None => {
-            redis.set_ex(redis_key, "null", 10).await?;
+            redis.set_ex(redis_key, "null", MISS_CACHE_SECONDS).await?;
             HttpResponse::NotFound().json(json!({}))
         }
         Some(msg) => {
             let msg = simplify_message(msg);
-            redis.set_ex(&redis_key, msg.to_string(), 5 * 60).await?;
+            redis
+                .set_ex(&redis_key, msg.to_string(), HIT_CACHE_SECONDS)
+                .await?;
             HttpResponse::Ok().json(msg)
         }
     })
@@ -84,9 +93,8 @@ async fn post_message(
     // post message with wechat module api
     let response = apis::send_template_message(&state.as_ref().token_manager, &message).await?;
     log::info!("A template message was sent successfully");
-    // if success, write to database
-    use std::time::SystemTime;
-    // init msg
+    // success, not write to database
+    // build Message type
     let msg = Message {
         id: message.id.unwrap(),
         app_id: state.as_ref().config.wechat.app_id.clone(),
@@ -111,15 +119,22 @@ async fn post_message(
             })
             .unwrap_or_default(),
     };
-    // insert into database
+    // save to redis cache
+    let mut redis = state.as_ref().redis_connection().await?;
+    redis
+        .set_ex(
+            redis_key(&msg.id),
+            simplify_message(msg.clone()).to_string(),
+            HIT_CACHE_SECONDS,
+        )
+        .await?;
+    // insert into SQL database
     // log::debug!("Inserting {:?} into database", msg);
     web::block(move || {
         let con = state.as_ref().db_pool.get()?;
-        super::actions::insert_message(msg, &con)
+        super::actions::insert_message(&msg, &con)
     })
     .await?;
-
-    // TODO: save to redis
 
     Ok(HttpResponse::Ok().json(response))
 }

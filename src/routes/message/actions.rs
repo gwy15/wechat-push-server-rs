@@ -4,9 +4,9 @@ use uuid::Uuid;
 
 use diesel::prelude::*;
 
-pub fn insert_message(msg: models::Message, con: &PgConnection) -> Result<()> {
+pub fn insert_message(msg: &models::Message, con: &PgConnection) -> Result<()> {
     use crate::schema::messages::dsl::*;
-    diesel::insert_into(messages).values(&msg).execute(con)?;
+    diesel::insert_into(messages).values(msg).execute(con)?;
     Ok(())
 }
 
