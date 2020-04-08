@@ -9,9 +9,16 @@ pub fn parse_xml_string(s: String) -> Result<HashMap<String, String>, CallbackEr
     // extract event
     for e in parser {
         match e {
+            // ignore
+            Ok(XmlEvent::StartDocument { .. }) | Ok(XmlEvent::Whitespace(_)) => {}
+            // stack push
             Ok(XmlEvent::StartElement { name, .. }) => {
                 stack.push(name.local_name.clone());
             }
+            Ok(XmlEvent::CData(value)) | Ok(XmlEvent::Characters(value)) => {
+                stack.push(value);
+            }
+            // pop
             Ok(XmlEvent::EndElement { .. }) => {
                 if stack.len() == 1 {
                     break;
@@ -20,14 +27,11 @@ pub fn parse_xml_string(s: String) -> Result<HashMap<String, String>, CallbackEr
                 let key = stack.pop().ok_or(CallbackError::Xml)?;
                 map.insert(key, value);
             }
-            Ok(XmlEvent::CData(value)) | Ok(XmlEvent::Characters(value)) => {
-                stack.push(value);
-            }
-            Ok(XmlEvent::Whitespace(_)) => {}
             Err(e) => {
                 log::error!("Error: {}", e);
                 return Err(CallbackError::Xml)?;
             }
+            // other items
             item => log::warn!("unknown item '{:?}', ignore", item),
         }
     }
