@@ -26,11 +26,11 @@ jobs:
       with:
         path: ~/.cargo/registry
         key: ${{ runner.os }}-wechat-push-cargo-registry
-    - name: Cache cargo index
+    - name: Cache cargo binaries
       uses: actions/cache@v1
       with:
-        path: ~/.cargo/git
-        key: ${{ runner.os }}-wechat-push-cargo-index
+        path: ~/.cargo/bin
+        key: ${{ runner.os }}-wechat-push-cargo-binary
 
     - name: Install diesel cli
       run: cargo install diesel_cli --no-default-features --features postgres
