@@ -5,5 +5,3 @@ pub enum CallbackError {
     #[fail(display = "Failed to parse callback xml")]
     Xml,
 }
-
-impl ResponseError for CallbackError {}
