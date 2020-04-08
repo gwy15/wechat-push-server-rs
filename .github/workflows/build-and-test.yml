@@ -40,7 +40,8 @@ jobs:
         image: redis:alpine
         ports:
         - 6379:6379
-
+    
+    steps:
     # setup environments
     - name: Setup Python
       uses: actions/setup-python@v1
