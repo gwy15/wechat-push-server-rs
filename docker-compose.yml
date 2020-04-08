@@ -10,3 +10,5 @@ services:
         container_name: wechat-push-postgres
         environment: 
             - POSTGRES_PASSWORD=RANDOM_PASSWORD
+        ports: 
+            - "5432:5432"
