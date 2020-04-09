@@ -45,7 +45,7 @@ jobs:
         architecture: 'x64'
     - name: Setup python test environment
       run: |
-        pip install pytest
+        pip install -r tests/requirements.txt
     - name: Cache cargo binaries
       uses: actions/cache@v1
       with:
