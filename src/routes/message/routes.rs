@@ -1,4 +1,4 @@
-use crate::errors::Result;
+use crate::errors::{Error, Result};
 use crate::models::Message;
 use crate::shared_state::AppState;
 use crate::wechat::template_message::{apis, NewMessage};
@@ -91,7 +91,17 @@ async fn post_message(
     );
     log::trace!("Sending message {:?}", message);
     // post message with wechat module api
-    let response = apis::send_template_message(&state.as_ref().token_manager, &message).await?;
+    let response = apis::send_template_message(&state.as_ref().token_manager, &message).await;
+    use crate::wechat::errors::WechatError;
+    if let Err(wechat_error) = &response {
+        if let WechatError::Wechat { errcode, .. } = wechat_error {
+            if *errcode == 40003 {
+                log::warn!("OpenID illegal");
+                return Err(Error::BadRequest("OpenID illegal".into()));
+            }
+        }
+    }
+    let response = response?;
     log::info!("A template message was sent successfully");
     // success, not write to database
     // build Message type

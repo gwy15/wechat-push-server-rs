@@ -48,7 +48,7 @@ async fn query_scene(query: web::Path<(u32,)>, state: web::Data<AppState>) -> Re
     // query from redis
     let mut con = state.as_ref().redis_connection().await?;
     let key: String = format!("scene_{}", scene_id);
-    let response: Option<u32> = con.get(&key).await?;
+    let response: Option<String> = con.get(&key).await?;
 
     Ok(match response {
         Some(open_id) => HttpResponse::Ok().json(json!({ "openID": open_id })),

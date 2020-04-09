@@ -72,6 +72,7 @@ async fn on_event(
     state: web::Data<AppState>,
     data: std::collections::HashMap<String, String>,
 ) -> Result<HttpResponse> {
+    log::debug!("handle callback event");
     let open_id = data["FromUserName"].clone();
     match data["Event"].as_str() {
         // on subscribe or scan
@@ -85,6 +86,7 @@ async fn on_event(
                         false => value.clone(),
                     };
                     // insert into database
+                    log::debug!("caching scene_id {} with open id {}", scene_id, open_id);
                     cache_scene_id_with_openid(
                         state.as_ref().redis_connection().await?,
                         scene_id,

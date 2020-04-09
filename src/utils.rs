@@ -1,4 +1,4 @@
-use crate::errors::{Result};
+use crate::errors::Result;
 use actix_web::HttpRequest;
 use failure::ResultExt;
 
