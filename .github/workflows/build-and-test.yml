@@ -56,6 +56,10 @@ jobs:
     - name: Setup database
       run: diesel --database-url=postgres://postgres:github_action_pswd@127.0.0.1:5432/wechat_push setup
     # run tests
+    - name: Decrypt secret
+      run: bash ./config/decrypt.sh
+      env:
+        SECRET_PASSPHRASE: ${{ secrets.SECRET_PASSPHRASE }}
     - name: Run Integration tests
       run: |
         ./target/debug/server-rs &
