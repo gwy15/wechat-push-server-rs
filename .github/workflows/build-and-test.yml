@@ -58,7 +58,7 @@ jobs:
     # run tests
     - name: Run Integration tests
       run: |
-        ./target/debug/server-rs > tests/server.log &
+        ./target/debug/server-rs &
         SERVER_PID=$!
         sleep 1
         pytest tests -v
