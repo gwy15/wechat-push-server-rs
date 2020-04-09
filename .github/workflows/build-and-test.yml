@@ -6,6 +6,18 @@ jobs:
   Build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:10-alpine
+        env:
+          POSTGRES_PASSWORD: github_action_pswd
+        ports:
+        - 5432:5432
+      redis:
+        image: redis:alpine
+        ports:
+        - 6379:6379
+
     steps:
     - uses: actions/checkout@v2
     # caches
@@ -25,25 +37,7 @@ jobs:
     # unittest
     - name: Run unit tests
       run: cargo test --verbose
-
-  Integration-test:
-    runs-on: ubuntu-latest
-    needs: build
-    services:
-      postgres:
-        image: postgres:10-alpine
-        env:
-          POSTGRES_PASSWORD: github_action_pswd
-        ports:
-        - 5432:5432
-      redis:
-        image: redis:alpine
-        ports:
-        - 6379:6379
-    
-    steps:
-    - uses: actions/checkout@v2
-    # setup environments
+    # setup integration test environments
     - name: Setup Python
       uses: actions/setup-python@v1
       with:
@@ -64,4 +58,7 @@ jobs:
     # run tests
     - name: Run Integration tests
       run: |
-        pytest
+        ./build/server-rs > tests/server.log &
+        SERVER_PID=$!
+        sleep 1
+        pytest tests -v && kill $SERVER_PID || kill $SERVER_PID

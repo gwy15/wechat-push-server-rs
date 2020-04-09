@@ -1,4 +1,4 @@
-CONFIG = config.default.toml config.testing.toml config.ci.toml log4rs.yml
+CONFIG = config.default.toml config.ci.toml log4rs.yml
 CONFIG_TARGETS = $(addprefix build/config/, $(CONFIG))
 MIGRATIONS = $(shell find migrations -type f)
 MIGRATIONS_TARGETS = $(addprefix build/, $(MIGRATIONS))
@@ -32,7 +32,10 @@ $(MIGRATIONS_TARGETS): build/migrations/%: migrations/%
 	dirname $@ | xargs mkdir -p
 	cp $^ $@
 
-.PHONY: all clean
+.PHONY: all clean test
 
 clean:
 	rm -rf build build.zip
+
+test: build/server-rs
+	./tests/test.sh
