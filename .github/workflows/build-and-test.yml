@@ -58,7 +58,7 @@ jobs:
     # run tests
     - name: Run Integration tests
       run: |
-        ./build/server-rs > tests/server.log &
+        cargo run > tests/server.log &
         SERVER_PID=$!
         sleep 1
         pytest tests -v && kill $SERVER_PID || kill $SERVER_PID
