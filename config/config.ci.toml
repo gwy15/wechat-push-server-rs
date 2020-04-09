@@ -1,2 +1,3 @@
 # The GitHub testing toml file (wechat appid and secret needed in config.ci.local.toml)
+root_url = "/api/v2"
 postgres_url = "postgres://postgres:github_action_pswd@127.0.0.1/wechat_push"

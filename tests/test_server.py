@@ -10,10 +10,9 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         self.client = requests.session()
         self.token = 'token'
-        # TODO: start server
 
     def url(self, path):
-        return 'http://127.0.0.1:8088/api2' + path
+        return 'http://127.0.0.1:8088/api/v2' + path
 
     def get(self, path, *args, **kws):
         return self.client.get(self.url(path), *args, **kws)
