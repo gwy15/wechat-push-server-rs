@@ -21,16 +21,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(testing: bool) -> Result<Self, ConfigError> {
+    pub fn new() -> Result<Self, ConfigError> {
         let mut s = ConfigMod::new();
         // default
         s.merge(File::with_name("config/config.default.toml"))?;
         s.merge(File::with_name("config/config.local.toml").required(false))?;
-        // testing
-        if testing {
-            s.merge(File::with_name("config/config.testing.toml"))?;
-            s.merge(File::with_name("config/config.testing.local.toml").required(false))?;
-        }
         // Am I in CI?
         let workflow_name = env::var("GITHUB_WORKFLOW").unwrap_or("".into());
         if workflow_name != "" {

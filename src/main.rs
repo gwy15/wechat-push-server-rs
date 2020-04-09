@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
     logging::init_logger();
 
     // init wechat token manager here
-    let config = config::Config::new(false).unwrap();
+    let config = config::Config::new().unwrap();
     let root_url = config.root_url.clone();
     log::info!("App running under root_url {}", root_url);
     let state = shared_state::AppState::from_config(config);
