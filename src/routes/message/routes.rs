@@ -78,7 +78,8 @@ async fn post_message(
     // extract from web::Form boxing
     let mut message: NewMessage = message.into_inner();
     // modify the message
-    message.id = Some(Uuid::new_v4());
+    let id = Uuid::new_v4();
+    message.id = Some(id.clone());
     message.detail_url = Some(format!(
         "{}/{}",
         state.as_ref().config.wechat.detail_url,
@@ -93,15 +94,13 @@ async fn post_message(
     // post message with wechat module api
     let response = apis::send_template_message(&state.as_ref().token_manager, &message).await;
     use crate::wechat::errors::WechatError;
-    if let Err(wechat_error) = &response {
-        if let WechatError::Wechat { errcode, .. } = wechat_error {
-            if *errcode == 40003 {
-                log::warn!("OpenID illegal");
-                return Err(Error::BadRequest("OpenID illegal".into()));
-            }
+    if let Err(WechatError::Wechat { errcode, .. }) = &response {
+        if *errcode == 40003 {
+            log::warn!("OpenID illegal");
+            return Err(Error::BadRequest("OpenID illegal".into()));
         }
     }
-    let response = response?;
+    response?;
     log::info!("A template message was sent successfully");
     // success, not write to database
     // build Message type
@@ -146,7 +145,7 @@ async fn post_message(
     })
     .await?;
 
-    Ok(HttpResponse::Ok().json(response))
+    Ok(HttpResponse::Ok().json(json!({ "token": id })))
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

@@ -37,5 +37,5 @@ $(MIGRATIONS_TARGETS): build/migrations/%: migrations/%
 clean:
 	rm -rf build build.zip
 
-test: build/server-rs
+test:
 	./tests/test.sh
